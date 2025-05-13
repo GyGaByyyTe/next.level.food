@@ -9,7 +9,7 @@ export default function MainHeader() {
     <>
       <MainHeaderBackground />
       <header className={cl.header}>
-        <Link href="/public" className={cl.logo}>
+        <Link href="/" className={cl.logo}>
           <Image priority src={logoImg} alt="Logo with food" />
           Next.Level Food
         </Link>
