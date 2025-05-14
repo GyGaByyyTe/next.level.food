@@ -1,0 +1,38 @@
+import Link from 'next/link';
+import Image from 'next/image';
+
+import cl from './MealItem.module.css';
+
+export default function MealItem({
+  title,
+  slug,
+  image,
+  summary,
+  creator,
+}: {
+  title: string;
+  slug: string;
+  image: string;
+  summary: string;
+  creator: string;
+}) {
+  return (
+    <article className={cl.meal}>
+      <header>
+        <div className={cl.image}>
+          <Image src={image} alt={title} fill />
+        </div>
+        <div className={cl.headerText}>
+          <h2>{title}</h2>
+          <p>by {creator}</p>
+        </div>
+      </header>
+      <div className={cl.content}>
+        <p className={cl.summary}>{summary}</p>
+        <div className={cl.actions}>
+          <Link href={`/meals/${slug}`}>View Details</Link>
+        </div>
+      </div>
+    </article>
+  );
+}
