@@ -22,7 +22,7 @@ npm run test:watch
 
 ## Test Coverage
 
-The project includes tests for the following components and pages:
+The project includes tests for the following components, pages, and library functions:
 
 ### Components
 - **NavLink**: Tests for correct rendering and active state based on the current path
@@ -36,6 +36,11 @@ The project includes tests for the following components and pages:
 - **Home Page**: Tests for heading, description, call-to-action links, and content sections
 - **Community Page**: Tests for heading, description, and community perks sections
 - **Meals Page**: Tests for heading and navigation links
+
+### Library Functions
+- **lib/meals**: Tests for the `getMeals()` function that retrieves meal data from the database, including:
+  - Verifying that it returns an array of meal objects with the expected properties
+  - Confirming that it calls the database with the correct SQL query
 
 ## Writing Tests
 

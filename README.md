@@ -45,6 +45,8 @@ next.level.food/
 │   │   └── MealsGrid/    # Grid layout for meals with tests
 │   ├── NavLink/          # Navigation link component
 │   └── __tests__/        # Component tests
+├── lib/                  # Utility functions and data access
+│   └── meals.ts          # Meal data access functions
 ├── public/               # Public static files
 ├── types/                # TypeScript type definitions
 │   └── meals.ts          # Meal-related type definitions
@@ -116,14 +118,15 @@ Run tests in watch mode (useful during development):
 npm run test:watch
 ```
 
-### Component Tests
+### Component and Library Tests
 
-The project includes tests for the following components:
+The project includes tests for the following components and library functions:
 
 - **MealItem**: Tests that the component renders correctly with all meal properties (title, image, summary, creator) and that the link to the meal details page works.
 - **MealsGrid**: Tests that the component renders a list of meal items correctly and handles empty lists.
+- **lib/meals**: Tests for the `getMeals()` function that retrieves meal data from the database.
 
-For more information about testing, see the [testing documentation](./components/__tests__/README.md).
+For more information about testing, see the [testing documentation](./__tests__/README.md).
 
 ## 📦 Deployment
 
