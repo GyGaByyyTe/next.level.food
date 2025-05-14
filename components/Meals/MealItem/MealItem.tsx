@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import Image from 'next/image';
-
+import { MealItemProps } from '@/types/meals';
 import cl from './MealItem.module.css';
 
 export default function MealItem({
@@ -9,13 +9,7 @@ export default function MealItem({
   image,
   summary,
   creator,
-}: {
-  title: string;
-  slug: string;
-  image: string;
-  summary: string;
-  creator: string;
-}) {
+}: MealItemProps) {
   return (
     <article className={cl.meal}>
       <header>

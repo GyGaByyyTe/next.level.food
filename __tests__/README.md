@@ -29,6 +29,8 @@ The project includes tests for the following components and pages:
 - **MainHeader**: Tests for logo, navigation links, and background rendering
 - **ImageSlideshow**: Tests for image rendering, automatic cycling, and cleanup
 - **MainHeaderBackground**: Tests for SVG gradient background rendering
+- **MealItem**: Tests for rendering meal details and links
+- **MealsGrid**: Tests for rendering a list of meals
 
 ### Pages
 - **Home Page**: Tests for heading, description, call-to-action links, and content sections
@@ -37,16 +39,16 @@ The project includes tests for the following components and pages:
 
 ## Writing Tests
 
-### Component Tests
+### Test Organization
 
-Component tests should be placed in the `components/__tests__` directory. The naming convention is `ComponentName.test.tsx`.
+All tests are located in the root `__tests__` directory. The naming convention is `ComponentName.test.tsx` or `pageName.test.tsx`.
 
 Example:
 
 ```tsx
 import React from 'react';
 import { render, screen } from '@testing-library/react';
-import YourComponent from '../path/to/YourComponent';
+import YourComponent from '../components/path/to/YourComponent';
 import '@testing-library/jest-dom';
 
 describe('YourComponent', () => {
@@ -57,17 +59,13 @@ describe('YourComponent', () => {
 });
 ```
 
-### Page Tests
-
-Page tests should be placed in the `app/__tests__` directory. The naming convention is `pageName.test.tsx`.
-
 ### Mocking Components and Modules
 
 When testing components that use other components or Next.js features, you'll need to mock them:
 
 ```tsx
 // Mock a component
-jest.mock('../path/to/Component', () => ({
+jest.mock('../components/path/to/Component', () => ({
   __esModule: true,
   default: () => <div data-testid="mock-component" />
 }));
@@ -90,7 +88,7 @@ For images and other static assets, create simple string mocks:
 
 ```tsx
 // Mock image imports
-jest.mock('../../assets/image.jpg', () => 'mock-image-path.jpg');
+jest.mock('../assets/image.jpg', () => 'mock-image-path.jpg');
 
 // Mock the next/image component
 jest.mock('next/image', () => ({
@@ -107,4 +105,4 @@ jest.mock('next/image', () => ({
 4. Use descriptive test names that explain what is being tested
 5. When testing components with timers or animations, use Jest's timer mocks
 6. For components that render multiple similar elements, use specific selectors or test IDs
-7. Use relative import paths in tests instead of alias paths (e.g., '../Component' instead of '@/components/Component')
+7. Use relative import paths in tests instead of alias paths when possible

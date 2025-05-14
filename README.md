@@ -40,11 +40,31 @@ next.level.food/
 ├── components/           # Reusable React components
 │   ├── ImageSlideshow/   # Image slideshow component
 │   ├── MainHeader/       # Main header with navigation
+│   ├── Meals/            # Meal-related components
+│   │   ├── MealItem/     # Individual meal component with tests
+│   │   └── MealsGrid/    # Grid layout for meals with tests
 │   ├── NavLink/          # Navigation link component
 │   └── __tests__/        # Component tests
 ├── public/               # Public static files
+├── types/                # TypeScript type definitions
+│   └── meals.ts          # Meal-related type definitions
 └── __mocks__/            # Test mocks
 ```
+
+### Components and Types
+
+#### Meal-Related Components
+
+- **MealItem**: A component that displays a single meal with its title, image, summary, and creator. It also provides a link to the meal details page.
+- **MealsGrid**: A component that displays a grid of meal items. It takes an array of meal objects and renders a MealItem component for each meal.
+
+#### Type Definitions
+
+The project uses TypeScript for type safety. The following types are defined in the `types/meals.ts` file:
+
+- **Meal**: An interface that represents a meal item with properties like id, title, slug, image, summary, and creator.
+- **MealItemProps**: A type that represents the props for the MealItem component. It's derived from the Meal interface but omits the id property.
+- **MealsGridProps**: An interface that represents the props for the MealsGrid component. It includes an array of Meal objects.
 
 ## 🛠️ Installation
 
@@ -95,6 +115,13 @@ Run tests in watch mode (useful during development):
 ```bash
 npm run test:watch
 ```
+
+### Component Tests
+
+The project includes tests for the following components:
+
+- **MealItem**: Tests that the component renders correctly with all meal properties (title, image, summary, creator) and that the link to the meal details page works.
+- **MealsGrid**: Tests that the component renders a list of meal items correctly and handles empty lists.
 
 For more information about testing, see the [testing documentation](./components/__tests__/README.md).
 

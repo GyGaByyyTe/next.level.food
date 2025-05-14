@@ -1,6 +1,6 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
-import NavLink from '../NavLink/NavLink';
+import NavLink from '../components/NavLink/NavLink';
 import '@testing-library/jest-dom';
 
 // Mock the usePathname hook

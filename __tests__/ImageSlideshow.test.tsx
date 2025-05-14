@@ -1,6 +1,6 @@
 import React from 'react';
 import { render, screen, act } from '@testing-library/react';
-import ImageSlideshow from '../ImageSlideshow/ImageSlideshow';
+import ImageSlideshow from '../components/ImageSlideshow/ImageSlideshow';
 import '@testing-library/jest-dom';
 
 // Mock the next/image component

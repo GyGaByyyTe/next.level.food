@@ -1,6 +1,6 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
-import CommunityPage from '../community/page';
+import CommunityPage from '../app/community/page';
 import '@testing-library/jest-dom';
 
 // Mock the next/image component
@@ -12,9 +12,9 @@ jest.mock('next/image', () => ({
 }));
 
 // Mock the image imports
-jest.mock('../../assets/icons/meal.png', () => 'meal-icon.png');
-jest.mock('../../assets/icons/community.png', () => 'community-icon.png');
-jest.mock('../../assets/icons/events.png', () => 'events-icon.png');
+jest.mock('../assets/icons/meal.png', () => 'meal-icon.png');
+jest.mock('../assets/icons/community.png', () => 'community-icon.png');
+jest.mock('../assets/icons/events.png', () => 'events-icon.png');
 
 describe('Community Page', () => {
   it('renders the heading with highlight', () => {

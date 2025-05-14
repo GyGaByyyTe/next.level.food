@@ -1,10 +1,10 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
-import Home from '../page';
+import Home from '../app/page';
 import '@testing-library/jest-dom';
 
 // Mock the ImageSlideshow component
-jest.mock('../../components/ImageSlideshow/ImageSlideshow', () => ({
+jest.mock('../components/ImageSlideshow/ImageSlideshow', () => ({
   __esModule: true,
   default: () => <div data-testid="mock-slideshow" />,
 }));

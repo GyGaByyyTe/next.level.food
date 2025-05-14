@@ -1,6 +1,6 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
-import MainHeader from '../MainHeader/MainHeader';
+import MainHeader from '../components/MainHeader/MainHeader';
 import '@testing-library/jest-dom';
 
 // Mock the next/image component
@@ -12,13 +12,13 @@ jest.mock('next/image', () => ({
 }));
 
 // Mock the MainHeaderBackground component
-jest.mock('../MainHeader/MainHeaderBackground', () => ({
+jest.mock('../components/MainHeader/MainHeaderBackground', () => ({
   __esModule: true,
   default: () => <div data-testid="mock-header-background" />,
 }));
 
 // Mock the NavLink component
-jest.mock('../NavLink', () => ({
+jest.mock('../components/NavLink', () => ({
   __esModule: true,
   default: ({ href, children }: { href: string; children: React.ReactNode }) => (
     <a href={href} data-testid="mock-nav-link">

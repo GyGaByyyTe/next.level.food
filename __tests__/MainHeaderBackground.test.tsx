@@ -1,6 +1,6 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
-import MainHeaderBackground from '../MainHeader/MainHeaderBackground';
+import MainHeaderBackground from '../components/MainHeader/MainHeaderBackground';
 import '@testing-library/jest-dom';
 
 describe('MainHeaderBackground Component', () => {
