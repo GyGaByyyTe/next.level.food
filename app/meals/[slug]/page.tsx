@@ -1,14 +1,10 @@
-import Link from 'next/link';
+import * as React from 'react';
 import Image from 'next/image';
 import cl from './page.module.css';
 import { getMeal } from '@/lib/meals';
 
-export default async function MealDetailsPage({
-  params,
-}: {
-  params: { slug: string };
-}) {
-  const { slug } = params;
+export default async function MealDetailsPage({ params }) {
+  const { slug } = await params;
   const meal = await getMeal(slug);
 
   return (
