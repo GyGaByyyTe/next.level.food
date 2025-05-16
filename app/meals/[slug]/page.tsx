@@ -1,18 +1,36 @@
 import Link from 'next/link';
+import Image from 'next/image';
+import cl from './page.module.css';
+import { getMeal } from '@/lib/meals';
 
-export default function MealSlugPage({ params }: { params: { slug: string } }) {
+export default async function MealDetailsPage({
+  params,
+}: {
+  params: { slug: string };
+}) {
+  const { slug } = params;
+  const meal = await getMeal(slug);
+
   return (
-    <main>
-      <h1 style={{ color: 'white', textAlign: 'center' }}>
-        Meal With slug Page
-      </h1>
-      <p>
-        <Link href="/">Home</Link>
-      </p>
-      <p>
-        <Link href="/meals">Back</Link>
-      </p>
-      <h3>{params.slug}</h3>
-    </main>
+    <>
+      <header className={cl.header}>
+        <div className={cl.image}>
+          <Image fill src={meal.image} alt={meal.title} />
+        </div>
+        <div className={cl.headerText}>
+          <h1>{meal.title}</h1>
+          <p className={cl.creator}>
+            by <a href={`mailto:${meal.creator_email}}`}>{meal.creator}</a>
+          </p>
+          <p className={cl.summary}>{meal.summary}</p>
+        </div>
+      </header>
+      <main>
+        <p
+          className={cl.instructions}
+          dangerouslySetInnerHTML={{ __html: meal.instructions }}
+        />
+      </main>
+    </>
   );
 }
