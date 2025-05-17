@@ -9,7 +9,7 @@ export interface Meal {
   id: string;
   slug: string;
   title: string;
-  image: string;
+  image: string | File;
   summary: string;
   instructions: string;
   creator: string;
@@ -20,6 +20,11 @@ export interface Meal {
  * Props for the MealItem component
  */
 export type MealItemProps = Omit<Meal, 'id'>;
+
+/**
+ * Props for the POST meal handler
+ */
+export type CreateMealDto = Omit<MealItemProps, 'slug'>;
 
 /**
  * Props for the MealsGrid component

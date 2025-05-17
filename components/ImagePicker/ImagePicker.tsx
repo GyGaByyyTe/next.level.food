@@ -20,7 +20,9 @@ export default function ImagePicker({
 
       if (file) {
         const reader = new FileReader();
-        reader.onload = () => setImage(reader.result as string);
+        reader.onload = () => {
+          setImage(reader.result as string);
+        };
 
         reader.readAsDataURL(file);
       } else {
@@ -53,6 +55,7 @@ export default function ImagePicker({
           className={cl.input}
           accept="image/png, image/jpeg"
           onChange={handleFileChange}
+          data-testid="file-input"
         />
         <button type="button" className={cl.button} onClick={handleFileSelect}>
           Pick an image

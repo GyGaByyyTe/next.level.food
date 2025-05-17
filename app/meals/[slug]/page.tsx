@@ -22,7 +22,7 @@ export default async function MealDetailsPage({
     <>
       <header className={cl.header}>
         <div className={cl.image}>
-          <Image fill src={meal.image} alt={meal.title} />
+          <Image fill src={meal.image as string} alt={meal.title} />
         </div>
         <div className={cl.headerText}>
           <h1>{meal.title}</h1>
