@@ -25,6 +25,7 @@
 .idea/
 *.pem
 *.db
+ecosystem.config.js
 
 # debug
 npm-debug.log*
