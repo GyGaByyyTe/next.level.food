@@ -1,8 +1,8 @@
 'use server';
-
+import { revalidatePath } from 'next/cache';
+import { redirect } from 'next/navigation';
 import { CreateMealDto } from '@/types/meals';
 import { saveMeal } from '@/lib/meals';
-import { redirect } from 'next/navigation';
 
 export const shareMealHandler = async (formData: FormData) => {
   const meal: CreateMealDto = {
@@ -15,6 +15,9 @@ export const shareMealHandler = async (formData: FormData) => {
   };
 
   await saveMeal(meal);
+
+  // Add this line to revalidate the meals page
+  revalidatePath('/meals');
 
   redirect('/meals');
 };
