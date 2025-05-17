@@ -3,7 +3,11 @@ import Image from 'next/image';
 import cl from './page.module.css';
 import { getMeal } from '@/lib/meals';
 
-export default async function MealDetailsPage({ params }) {
+export default async function MealDetailsPage({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}) {
   const { slug } = await params;
   const meal = await getMeal(slug);
 
