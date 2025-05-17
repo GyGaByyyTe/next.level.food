@@ -2,6 +2,7 @@ import * as React from 'react';
 import Image from 'next/image';
 import cl from './page.module.css';
 import { getMeal } from '@/lib/meals';
+import { notFound } from 'next/navigation';
 
 export default async function MealDetailsPage({
   params,
@@ -10,6 +11,12 @@ export default async function MealDetailsPage({
 }) {
   const { slug } = await params;
   const meal = await getMeal(slug);
+
+  if (!meal) {
+    notFound();
+  }
+
+  meal.instructions = meal.instructions.replace(/\n/g, '<br />');
 
   return (
     <>
