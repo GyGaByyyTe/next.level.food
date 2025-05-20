@@ -10,6 +10,18 @@ jest.mock('next/image', () => ({
   ),
 }));
 
+// Mock the server action
+jest.mock('../lib/actions', () => ({
+  shareMealHandler: jest.fn(),
+}));
+
+// Mock the FormData class
+global.FormData = class {
+  get() {
+    return '';
+  }
+};
+
 describe('MealsSharePage', () => {
   it('renders the heading with correct text', () => {
     render(<MealsSharePage />);
