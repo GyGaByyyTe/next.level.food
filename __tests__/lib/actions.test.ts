@@ -29,7 +29,11 @@ describe('actions', () => {
       formData.append('title', 'Test Meal');
       formData.append('summary', 'This is a test meal');
       formData.append('instructions', 'Test instructions');
-      formData.append('image', 'test-image.jpg');
+
+      // Create a mock File
+      const mockFile = new File(['test file content'], 'test-image.jpg', { type: 'image/jpeg' });
+      formData.append('image', mockFile);
+
       formData.append('name', 'Test Creator');
       formData.append('email', 'test@example.com');
 
@@ -41,7 +45,7 @@ describe('actions', () => {
         title: 'Test Meal',
         summary: 'This is a test meal',
         instructions: 'Test instructions',
-        image: 'test-image.jpg',
+        image: mockFile,
         creator: 'Test Creator',
         creator_email: 'test@example.com',
       });
@@ -53,28 +57,68 @@ describe('actions', () => {
       expect(redirect).toHaveBeenCalledWith('/meals');
     });
 
-    it('should handle missing form data with empty strings', async () => {
-      // Create an empty FormData
+    it('should throw an error for invalid input', async () => {
+      // Create a FormData with invalid inputs
       const formData = new FormData();
+      formData.append('title', '  '); // Empty after trim
+      formData.append('summary', 'Valid summary');
+      formData.append('instructions', 'Valid instructions');
+      formData.append('name', 'Valid name');
+      formData.append('email', 'invalid-email'); // Missing @
 
-      // Call the handler
-      await shareMealHandler(formData);
+      // Empty file
+      const emptyFile = new File([''], 'empty.jpg', { type: 'image/jpeg' });
+      formData.append('image', emptyFile);
 
-      // Check that saveMeal was called with empty strings for missing data
-      expect(saveMeal).toHaveBeenCalledWith({
-        title: '',
-        summary: '',
-        instructions: '',
-        image: '',
-        creator: '',
-        creator_email: '',
-      });
+      // Expect the handler to throw an error
+      await expect(shareMealHandler(formData)).rejects.toThrow('Invalid meal information');
 
-      // Check that revalidatePath was called with the correct path
-      expect(revalidatePath).toHaveBeenCalledWith('/meals');
+      // Check that saveMeal was not called
+      expect(saveMeal).not.toHaveBeenCalled();
 
-      // Check that redirect was called with the correct path
-      expect(redirect).toHaveBeenCalledWith('/meals');
+      // Check that revalidatePath was not called
+      expect(revalidatePath).not.toHaveBeenCalled();
+
+      // Check that redirect was not called
+      expect(redirect).not.toHaveBeenCalled();
+    });
+
+    it('should throw an error when image is missing', async () => {
+      // Create a FormData with valid inputs but no image
+      const formData = new FormData();
+      formData.append('title', 'Valid Title');
+      formData.append('summary', 'Valid summary');
+      formData.append('instructions', 'Valid instructions');
+      formData.append('name', 'Valid name');
+      formData.append('email', 'valid@example.com');
+
+      // No image appended
+
+      // Expect the handler to throw an error
+      await expect(shareMealHandler(formData)).rejects.toThrow('Invalid meal information');
+
+      // Check that saveMeal was not called
+      expect(saveMeal).not.toHaveBeenCalled();
+    });
+
+    it('should throw an error when email format is invalid', async () => {
+      // Create a FormData with valid inputs but invalid email
+      const formData = new FormData();
+      formData.append('title', 'Valid Title');
+      formData.append('summary', 'Valid summary');
+      formData.append('instructions', 'Valid instructions');
+
+      const mockFile = new File(['test file content'], 'test-image.jpg', { type: 'image/jpeg' });
+      formData.append('image', mockFile);
+
+      formData.append('name', 'Valid name');
+      formData.append('email', 'invalidemail'); // Missing @
+
+      // Expect the handler to throw an error
+      await expect(shareMealHandler(formData)).rejects.toThrow('Invalid meal information');
+
+      // Check that saveMeal was not called
+      expect(saveMeal).not.toHaveBeenCalled();
     });
   });
 });
