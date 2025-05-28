@@ -1,14 +1,17 @@
 'use server';
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
-import { CreateMealDto } from '@/types/meals';
+import { CreateMealDto, FormState } from '@/types/meals';
 import { saveMeal } from '@/lib/meals';
 
 const isInvalidText = (text: string) => {
   return !text.trim().length;
 };
 
-export const shareMealHandler = async (formData: FormData) => {
+export const shareMealHandler = async (
+  formState: FormState,
+  formData: FormData,
+) => {
   const meal: CreateMealDto = {
     title: (formData.get('title') as string) || '',
     summary: (formData.get('summary') as string) || '',
@@ -28,7 +31,11 @@ export const shareMealHandler = async (formData: FormData) => {
     !meal.image ||
     (meal.image as File).size === 0
   ) {
-    throw new Error('Invalid meal information');
+    return {
+      meal,
+      error: 'Invalid meal information',
+      message: 'Please check your input and try again.',
+    };
   }
 
   await saveMeal(meal);

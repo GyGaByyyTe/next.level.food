@@ -32,3 +32,11 @@ export type CreateMealDto = Omit<MealItemProps, 'slug'>;
 export interface MealsGridProps {
   meals: Meal[];
 }
+/**
+ * Represents the state of the form used for meal sharing
+ */
+export interface FormState {
+  meal: CreateMealDto | null;
+  error: string;
+  message: string;
+}
