@@ -82,7 +82,8 @@ export default function ShareMealPage() {
             />
           </p>
           <ImagePicker name="image" label="Your image" />
-          {formState?.error && <p>{formState?.error}</p>}
+          {formState?.error && <p>{formState?.error}:</p>}
+          {formState?.message && <p>{formState?.message}</p>}
           <p className={cl.actions}>
             <MealShareFormSubmitButton />
           </p>

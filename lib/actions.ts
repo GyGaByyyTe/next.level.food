@@ -38,7 +38,19 @@ export const shareMealHandler = async (
     };
   }
 
-  await saveMeal(meal);
+  try {
+    await saveMeal(meal);
+  } catch (error) {
+    let errorMessage = 'Failed to save meal.';
+    if (error instanceof Error) {
+      errorMessage = error.message;
+    }
+    return {
+      meal,
+      error: 'Save Operation Failed',
+      message: errorMessage,
+    };
+  }
 
   // Add this line to revalidate the meals page
   revalidatePath('/meals');

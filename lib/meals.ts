@@ -1,4 +1,5 @@
-import fs from 'node:fs';
+import { PutObjectCommand } from '@aws-sdk/client-s3';
+import { s3Client, BUCKET_NAME } from '@/lib/s3Client';
 import sql from 'better-sqlite3';
 import slugify from 'slugify';
 import xss from 'xss';
@@ -7,13 +8,10 @@ import { CreateMealDto, Meal } from '@/types/meals';
 const db = sql('meals.db');
 
 export async function getMeals() {
-  await new Promise((resolve) => setTimeout(resolve, 1000));
   return db.prepare('SELECT * FROM meals').all() as Meal[];
 }
 
 export async function getMeal(slug: string) {
-  await new Promise((resolve) => setTimeout(resolve, 1000));
-
   return db.prepare('SELECT * FROM meals WHERE slug = ?').get(slug) as Meal;
 }
 
@@ -29,18 +27,30 @@ export async function saveMeal(meal: CreateMealDto) {
   };
 
   const extension = (meal.image as File).name.split('.').pop();
-  const fileName = `${slug}.${extension}`;
+  const fileName = `${slug}-${Date.now()}.${extension}`;
 
-  const stream = fs.createWriteStream(`public/images/${fileName}`);
   const bufferedImage = await (meal.image as File).arrayBuffer();
 
-  stream.write(Buffer.from(bufferedImage), (error) => {
-    if (error) {
-      throw new Error('Error writing image to file');
-    }
-  });
+  try {
+    const command = new PutObjectCommand({
+      Bucket: BUCKET_NAME,
+      Key: fileName,
+      Body: Buffer.from(bufferedImage),
+      ContentType: (meal.image as File).type,
+      ACL: 'public-read',
+    });
+    await s3Client.send(command);
+  } catch (error) {
+    console.error('Error uploading to MinIO:', error);
+    throw new Error('Failed to save image to MinIO.');
+  }
 
-  sanitizedMeal.image = `/images/${fileName}`;
+  // URL для доступа к файлу. Зависит от вашей конфигурации MinIO и домена.
+  // Если MinIO за прокси и настроен домен, URL будет другим.
+  // Для прямого доступа: process.env.MINIO_ENDPOINT/BUCKET_NAME/fileName
+  // Убедитесь, что MINIO_ENDPOINT в .env.local не содержит / в конце
+  const minioPointFinal = `${process.env.MINIO_ENDPOINT_PROTOCOL}://${process.env.MINIO_ENDPOINT_HOST}:${process.env.MINIO_ENDPOINT_PORT}`;
+  sanitizedMeal.image = `${minioPointFinal}/${BUCKET_NAME}/${fileName}`;
 
   db.prepare(
     `
