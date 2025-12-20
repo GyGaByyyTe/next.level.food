@@ -1,0 +1,23 @@
+services:
+  fdc-app:
+    image: ${FDC_IMAGE:-gygabyyyte/food-does-cool:latest}
+    container_name: fdc-app
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      - PORT=${PORT:-3010}
+      - MINIO_ACCESS_KEY=${MINIO_ACCESS_KEY}
+      - MINIO_SECRET_KEY=${MINIO_SECRET_KEY}
+      - MINIO_ENDPOINT_PROTOCOL=${MINIO_ENDPOINT_PROTOCOL:-http}
+      - MINIO_ENDPOINT_HOST=${MINIO_ENDPOINT_HOST:-173.212.252.150}
+      - MINIO_ENDPOINT_PORT=${MINIO_ENDPOINT_PORT:-9000}
+      - MINIO_BUCKET_NAME=${MINIO_BUCKET_NAME:-meals}
+    ports:
+      - "${APP_BIND_IP:-127.0.0.1}:3010:3010"
+    volumes:
+      - fdc-sqlite-data:/data
+
+volumes:
+  fdc-sqlite-data:
+    name: fdc-sqlite-data

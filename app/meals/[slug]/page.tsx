@@ -41,3 +41,6 @@ export default async function MealDetailsPage({
     </>
   );
 }
+
+// Отключаем пререндеринг этой страницы на этапе сборки
+export const dynamic = 'force-dynamic';

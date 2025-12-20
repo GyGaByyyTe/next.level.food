@@ -56,12 +56,11 @@ export async function saveMeal(meal: CreateMealDto) {
       throw new Error('Failed to save image to MinIO.');
     }
 
-    // URL для доступа к файлу. Зависит от вашей конфигурации MinIO и домена.
-    // Если MinIO за прокси и настроен домен, URL будет другим.
-    // Для прямого доступа: process.env.MINIO_ENDPOINT/BUCKET_NAME/fileName
-    // Убедитесь, что MINIO_ENDPOINT в .env.local не содержит / в конце
-    const minioPointFinal = `${process.env.MINIO_ENDPOINT_PROTOCOL}://${process.env.MINIO_ENDPOINT_HOST}:${process.env.MINIO_ENDPOINT_PORT}`;
-    sanitizedMeal.image = `${minioPointFinal}/${BUCKET_NAME}/${fileName}`;
+    // Формируем публичный HTTPS-URL через nginx-прокси, чтобы избежать mixed content
+    // Можно переопределить через переменную окружения MINIO_PUBLIC_BASE_URL
+    const publicBase =
+      process.env.MINIO_PUBLIC_BASE_URL || 'https://food.does.cool/minio';
+    sanitizedMeal.image = `${publicBase}/${BUCKET_NAME}/${fileName}`;
   }
 
   db.prepare(

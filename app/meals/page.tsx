@@ -6,6 +6,9 @@ import { Meal } from '@/types/meals';
 import cl from './page.module.css';
 import MealsLoadingPage from '@/app/meals/loading';
 
+// Отключаем пререндеринг на этапе сборки, чтобы не было обращений к MinIO на build
+export const dynamic = 'force-dynamic';
+
 async function Meals() {
   const meals: Meal[] = await getMeals();
 

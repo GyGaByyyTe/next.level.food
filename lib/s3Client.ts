@@ -1,26 +1,29 @@
 import { S3Client } from '@aws-sdk/client-s3';
 
-const accessKey = process.env.MINIO_ACCESS_KEY;
-const secretKey = process.env.MINIO_SECRET_KEY;
-const minioPointFinal = `${process.env.MINIO_ENDPOINT_PROTOCOL}://${process.env.MINIO_ENDPOINT_HOST}:${process.env.MINIO_ENDPOINT_PORT}`;
-// Например, 'http://YOUR_VPS_IP:9000'
-const minioRegiao = process.env.MINIO_REGION || 'us-east-1';
-// MinIO обычно не требует конкретного региона, но SDK может его ожидать
+// Делает инициализацию "мягкой": не бросает исключение при импорте, чтобы Docker build не падал.
+// Реальные значения считываются из переменных окружения в рантайме контейнера.
+const ACCESS_KEY = process.env.MINIO_ACCESS_KEY;
+const SECRET_KEY = process.env.MINIO_SECRET_KEY;
+const PROTOCOL = process.env.MINIO_ENDPOINT_PROTOCOL || 'http';
+const HOST = process.env.MINIO_ENDPOINT_HOST; // без дефолта — чтобы не подключаться по ошибочному адресу
+const PORT = process.env.MINIO_ENDPOINT_PORT; // без дефолта — чтобы не подключаться по ошибочному адресу
+const REGION = process.env.MINIO_REGION || 'us-east-1';
 
-if (!accessKey || !secretKey || !minioPointFinal) {
-  throw new Error(
-    'As credenciais do MinIO ou o endpoint não estão configurados nas variáveis de ambiente.',
-  );
-}
+const ENDPOINT = HOST ? `${PROTOCOL}://${HOST}${PORT ? `:${PORT}` : ''}` : undefined;
 
 export const s3Client = new S3Client({
-  endpoint: minioPointFinal,
-  region: minioRegiao,
-  credentials: {
-    accessKeyId: accessKey,
-    secretAccessKey: secretKey,
-  },
+  // Плейсхолдер для этапа сборки; в рантайме переменные будут заданы через docker-compose
+  endpoint: ENDPOINT || 'http://127.0.0.1:9000',
+  region: REGION,
+  // Если ключи не заданы на этапе сборки — оставим провайдер по умолчанию (будет ошибка только при реальном использовании)
+  credentials:
+    ACCESS_KEY && SECRET_KEY
+      ? {
+          accessKeyId: ACCESS_KEY,
+          secretAccessKey: SECRET_KEY,
+        }
+      : undefined,
   forcePathStyle: true, // Обязательно для MinIO
 });
 
-export const BUCKET_NAME = process.env.MINIO_BUCKET_NAME || 'meals'; // Имя вашего бакета
+export const BUCKET_NAME = process.env.MINIO_BUCKET_NAME || 'meals';
