@@ -9,6 +9,40 @@ NextLevel Food is a web application that allows users to:
 - Discover new dishes from other food enthusiasts
 - Connect with like-minded people in the food community
 - Participate in exclusive food-related events
+- **Sign in with Google to manage your recipes**
+
+## 🔐 Authentication
+
+The application uses **NextAuth.js** with Google OAuth provider for authentication. Users can:
+- Sign in with their Google account
+- Automatically fill in their name and email when creating recipes
+- Have their recipes associated with their email address
+- Sign out when done
+
+### Setting up Google OAuth
+
+1. Go to [Google Cloud Console](https://console.cloud.google.com/)
+2. Create a new project or select an existing one
+3. Enable the Google+ API
+4. Go to "Credentials" and create OAuth 2.0 credentials
+5. Add authorized redirect URIs:
+   - `http://localhost:3000/api/auth/callback/google` (for development)
+   - `https://yourdomain.com/api/auth/callback/google` (for production)
+6. Copy the Client ID and Client Secret
+7. Create a `.env.local` file in the root directory (see `.env.example`)
+8. Add your credentials:
+   ```
+   NEXTAUTH_URL=http://localhost:3000
+   NEXTAUTH_SECRET=your-secret-key-here
+   GOOGLE_CLIENT_ID=your-client-id
+   GOOGLE_CLIENT_SECRET=your-client-secret
+   ```
+
+To generate a secure `NEXTAUTH_SECRET`, run:
+```bash
+openssl rand -base64 32
+```
+
 
 ## 🚀 Technologies Used
 
@@ -17,6 +51,13 @@ NextLevel Food is a web application that allows users to:
   - [React 19](https://react.dev/) - UI library
   - [TypeScript](https://www.typescriptlang.org/) - Type-safe JavaScript
   - CSS Modules - For component-scoped styling
+
+- **Authentication**:
+  - [NextAuth.js v5](https://next-auth.js.org/) - Authentication for Next.js
+  - Google OAuth 2.0 - Sign in with Google
+
+- **Database**:
+  - [better-sqlite3](https://github.com/WiseLibs/better-sqlite3) - SQLite database
 
 - **Testing**:
   - [Jest](https://jestjs.io/) - Testing framework
@@ -70,6 +111,16 @@ The project uses TypeScript for type safety. The following types are defined in 
 
 ## 🛠️ Installation
 
+### Prerequisites (Windows)
+
+For Windows users, better-sqlite3 requires:
+- **Python** (3.x) - [Download](https://www.python.org/downloads/)
+- **Visual Studio Build Tools** - [Download](https://visualstudio.microsoft.com/downloads/)
+  - Make sure to install "Desktop development with C++" workload
+- **Node.js** 18+ - [Download](https://nodejs.org/)
+
+### Setup
+
 1. Clone the repository:
    ```bash
    git clone https://github.com/GyGaByyyTe/next.level.food.git
@@ -78,8 +129,21 @@ The project uses TypeScript for type safety. The following types are defined in 
 
 2. Install dependencies:
    ```bash
-   npm install
+   pnpm install
    ```
+   
+   **Note**: The project uses pnpm. If you don't have it installed:
+   ```bash
+   npm install -g pnpm
+   ```
+
+3. Create `.env.local` file (see Authentication section above)
+
+### Troubleshooting better-sqlite3
+
+If you encounter errors like "Could not locate the bindings file", see [BETTER_SQLITE3_FIX.md](./BETTER_SQLITE3_FIX.md) for detailed solution.
+
+The project includes `.npmrc` configuration that automatically handles native module compilation with Visual Studio 2019.
 
 ## 🖥️ Usage
 
@@ -87,7 +151,7 @@ The project uses TypeScript for type safety. The following types are defined in 
 
 Run the development server:
 ```bash
-npm run dev
+pnpm dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000) in your browser to see the application.
@@ -96,12 +160,12 @@ Open [http://localhost:3000](http://localhost:3000) in your browser to see the a
 
 Build the application for production:
 ```bash
-npm run build
+pnpm build
 ```
 
 Start the production server:
 ```bash
-npm start
+pnpm start
 ```
 
 ## 🧪 Testing
@@ -110,12 +174,12 @@ The project includes comprehensive tests for components and pages.
 
 Run all tests:
 ```bash
-npm test
+pnpm test
 ```
 
 Run tests in watch mode (useful during development):
 ```bash
-npm run test:watch
+pnpm test:watch
 ```
 
 ### Component and Library Tests

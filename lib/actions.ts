@@ -3,6 +3,7 @@ import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { CreateMealDto, FormState } from '@/types/meals';
 import { saveMeal } from '@/lib/meals';
+import { auth } from '@/lib/auth';
 
 const isInvalidText = (text: string) => {
   return !text.trim().length;
@@ -12,13 +13,16 @@ export const shareMealHandler = async (
   formState: FormState,
   formData: FormData,
 ) => {
+  const session = await auth();
+
   const meal: CreateMealDto = {
     title: (formData.get('title') as string) || '',
     summary: (formData.get('summary') as string) || '',
     instructions: (formData.get('instructions') as string) || '',
     image: (formData.get('image') as File) || null,
     creator: (formData.get('name') as string) || '',
-    creator_email: (formData.get('email') as string) || '',
+    // Используем email из сессии, если пользователь авторизован
+    creator_email: session?.user?.email || (formData.get('email') as string) || '',
   };
 
   if (

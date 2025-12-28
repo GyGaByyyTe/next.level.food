@@ -17,6 +17,9 @@ const customJestConfig = {
     // Handle image imports
     '^.+\\.(jpg|jpeg|png|gif|webp|svg)$': '<rootDir>/__mocks__/fileMock.js',
   },
+  transformIgnorePatterns: [
+    'node_modules/(?!(next-auth|@auth)/)',
+  ],
 };
 
 // createJestConfig is exported this way to ensure that next/jest can load the Next.js config which is async

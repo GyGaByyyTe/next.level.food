@@ -1,6 +1,6 @@
 'use client';
 
-import { useActionState } from 'react';
+import { useActionState, useEffect, useState } from 'react';
 import { FormState } from '@/types/meals';
 import ImagePicker from '@/components/ImagePicker';
 import { shareMealHandler } from '@/lib/actions';
@@ -18,6 +18,23 @@ export default function ShareMealPage() {
     shareMealHandler,
     initialState,
   );
+  const [userEmail, setUserEmail] = useState('');
+  const [userName, setUserName] = useState('');
+
+  useEffect(() => {
+    // Получаем данные пользователя из сессии
+    fetch('/api/auth/session')
+      .then((res) => res.json())
+      .then((session) => {
+        if (session?.user) {
+          setUserEmail(session.user.email || '');
+          setUserName(session.user.name || '');
+        }
+      })
+      .catch((error) => {
+        console.error('Error fetching session:', error);
+      });
+  }, []);
 
   return (
     <>
@@ -37,7 +54,8 @@ export default function ShareMealPage() {
                 type="text"
                 id="name"
                 name="name"
-                defaultValue={formState.meal?.creator}
+                defaultValue={formState.meal?.creator || userName}
+                key={userName}
               />
             </p>
             <p>
@@ -47,7 +65,9 @@ export default function ShareMealPage() {
                 type="email"
                 id="email"
                 name="email"
-                defaultValue={formState.meal?.creator_email}
+                defaultValue={formState.meal?.creator_email || userEmail}
+                readOnly={!!userEmail}
+                key={userEmail}
               />
             </p>
           </div>

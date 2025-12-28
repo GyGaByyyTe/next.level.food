@@ -27,7 +27,7 @@ export default async function MealDetailsPage({
         <div className={cl.headerText}>
           <h1>{meal.title}</h1>
           <p className={cl.creator}>
-            by <a href={`mailto:${meal.creator_email}}`}>{meal.creator}</a>
+            by <a href={`mailto:${meal.creator_email}`}>{meal.creator}</a>
           </p>
           <p className={cl.summary}>{meal.summary}</p>
         </div>

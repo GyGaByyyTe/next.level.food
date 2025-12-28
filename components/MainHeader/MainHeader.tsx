@@ -4,8 +4,12 @@ import logoImg from '@/public/images/logo.png';
 import cl from './MainHeader.module.css';
 import MainHeaderBackground from '@/components/MainHeader/MainHeaderBackground';
 import NavLink from '@/components/NavLink';
+import { auth } from '@/lib/auth';
+import { SignIn, SignOut } from '@/components/auth-components';
 
-export default function MainHeader() {
+export default async function MainHeader() {
+  const session = await auth();
+
   return (
     <>
       <MainHeaderBackground />
@@ -22,6 +26,16 @@ export default function MainHeader() {
             </li>
             <li>
               <NavLink href="/community">Community Foodies Community</NavLink>
+            </li>
+            <li className={cl.authItem}>
+              {session?.user ? (
+                <div className={cl.userInfo}>
+                  <span className={cl.userName}>{session.user.name}</span>
+                  <SignOut />
+                </div>
+              ) : (
+                <SignIn />
+              )}
             </li>
           </ul>
         </nav>

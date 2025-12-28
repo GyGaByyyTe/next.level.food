@@ -17,8 +17,24 @@
   padding: 0;
   display: flex;
   gap: 1.5rem;
+  align-items: center;
   /* font-family: 'Montserrat', sans-serif; */
   font-size: 1.25rem;
+}
+
+.authItem {
+  margin-left: 1rem;
+}
+
+.userInfo {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.userName {
+  color: #ddd6cb;
+  font-size: 1rem;
 }
 
 
