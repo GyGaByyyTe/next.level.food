@@ -19,4 +19,12 @@ if [ ! -f /data/meals.db ]; then
   fi
 fi
 
+# Run migrations (always, they're idempotent)
+if [ -f /app/scripts/migrate.js ]; then
+  echo "[entrypoint] Running database migrations..."
+  node /app/scripts/migrate.js || echo "[entrypoint] Warning: migrations failed; continuing"
+else
+  echo "[entrypoint] Warning: /app/scripts/migrate.js not found; skipping migrations"
+fi
+
 exec "$@"

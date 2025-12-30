@@ -150,7 +150,17 @@ export async function updateMeal(slug: string, meal: Partial<CreateMealDto>) {
   });
 }
 
-export async function deleteMeal(slug: string) {
+export async function deleteMeal(slug: string, userEmail?: string, isAdmin?: boolean) {
+  const existingMeal = getMeal(slug);
+  if (!existingMeal) {
+    throw new Error('Meal not found');
+  }
+
+  // Check permissions: user must be the creator or an admin
+  if (!isAdmin && existingMeal.creator_email !== userEmail) {
+    throw new Error('Unauthorized: You can only delete your own recipes');
+  }
+
   db.prepare('DELETE FROM meals WHERE slug = ?').run(slug);
 }
 

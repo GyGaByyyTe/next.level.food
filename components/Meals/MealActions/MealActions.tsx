@@ -3,24 +3,31 @@
 import { useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import { deleteMealHandler } from '@/lib/actions';
+import { useAuth } from '@/hooks/useAuth';
 import cl from './MealActions.module.css';
 
 interface MealActionsProps {
   slug: string;
   creatorEmail: string;
-  userEmail: string | null | undefined;
 }
 
 export default function MealActions({
   slug,
   creatorEmail,
-  userEmail,
 }: MealActionsProps) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
+  const { userEmail, isAdmin, isLoading } = useAuth();
 
-  // Показываем кнопки только если пользователь - создатель рецепта
-  if (!userEmail || userEmail !== creatorEmail) {
+  // Don't show anything while loading
+  if (isLoading) {
+    return null;
+  }
+
+  // Показываем кнопки если пользователь - создатель рецепта или администратор
+  const canModify = isAdmin || (userEmail && userEmail === creatorEmail);
+
+  if (!canModify) {
     return null;
   }
 
@@ -35,7 +42,7 @@ export default function MealActions({
 
     startTransition(async () => {
       try {
-        await deleteMealHandler(slug, creatorEmail);
+        await deleteMealHandler(slug);
       } catch (error) {
         if (error instanceof Error) {
           alert(error.message);

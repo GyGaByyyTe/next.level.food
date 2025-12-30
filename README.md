@@ -17,7 +17,74 @@ The application uses **NextAuth.js** with Google OAuth provider for authenticati
 - Sign in with their Google account
 - Automatically fill in their name and email when creating recipes
 - Have their recipes associated with their email address
+- Edit and delete their own recipes
 - Sign out when done
+
+### Using the useAuth Hook
+
+The application provides a custom `useAuth()` hook for accessing authentication state in client components:
+
+```typescript
+import { useAuth } from '@/hooks/useAuth';
+
+function MyComponent() {
+  const { isAuthenticated, isAdmin, userEmail, isLoading } = useAuth();
+  
+  if (isLoading) return <div>Loading...</div>;
+  if (!isAuthenticated) return <div>Please sign in</div>;
+  
+  return <div>Hello, {userEmail}!</div>;
+}
+```
+
+**Available properties:**
+- `session` - Full session object
+- `isAuthenticated` - Whether user is signed in
+- `isAdmin` - Whether user has admin privileges
+- `userEmail` - User's email address
+- `userName` - User's display name
+- `isLoading` - Whether session is being loaded
+
+For detailed usage examples, see [REFACTORING_USE_AUTH.md](./REFACTORING_USE_AUTH.md).
+
+### Administrator Access
+
+Administrators have additional privileges:
+- **Edit any recipe** (not just their own)
+- **Delete any recipe** (not just their own)
+
+To set up an administrator account, see the [Admin Setup Guide](./ADMIN_SETUP.md).
+
+Quick setup:
+```bash
+# 1. Run migrations (one time only)
+npm run migrate
+
+# 2. Create an admin user
+npm run make-admin your-email@example.com
+
+# 3. Sign out and sign in again to apply admin rights
+```
+
+**Important:** After creating an admin user, you must sign out and sign in again for the changes to take effect.
+
+For troubleshooting admin rights, see [ADMIN_FIX.md](./ADMIN_FIX.md).
+
+#### Docker Deployment
+
+When running in Docker, migrations run automatically on container startup. To create an admin:
+
+```bash
+# Create admin in running container
+docker exec fdc-app node scripts/make-admin.js your-email@example.com
+
+# View all admins
+docker exec fdc-app sqlite3 /data/meals.db "SELECT email, is_admin FROM users WHERE is_admin = 1;"
+```
+
+For detailed Docker instructions, see:
+- [DOCKER.md](./DOCKER.md) - Complete Docker guide
+- [DOCKER_ADMIN_QUICK_REF.md](./DOCKER_ADMIN_QUICK_REF.md) - Quick reference for admin commands in Docker
 
 ### Setting up Google OAuth
 
@@ -147,6 +214,19 @@ The project includes `.npmrc` configuration that automatically handles native mo
 
 ## 🖥️ Usage
 
+### First Time Setup
+
+If you're setting up the project for the first time or after updating to a version with admin features:
+
+1. **Run database migrations:**
+   ```bash
+   npm run migrate
+   ```
+
+2. **Create an admin user (optional):**
+   ```bash
+   npm run make-admin your-email@example.com
+   ```
 ### Development
 
 Run the development server:
@@ -201,6 +281,60 @@ The application can be deployed on [Vercel](https://vercel.com/), the platform f
 3. Vercel will automatically detect Next.js and configure the build settings
 
 For more details, see the [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying).
+
+### Docker Deployment
+
+The application can be deployed using Docker for production environments.
+
+#### Quick Start
+
+```bash
+# Build and push image (from development machine)
+docker build -t gygabyyyte/food-does-cool:latest .
+docker push gygabyyyte/food-does-cool:latest
+
+# Deploy on server
+docker compose -f docker-compose.app.yml pull
+docker compose -f docker-compose.app.yml up -d
+
+# Create admin user
+docker exec fdc-app node scripts/make-admin.js admin@example.com
+```
+
+#### What Happens on Container Start
+
+1. **Database initialization** - Creates SQLite database if it doesn't exist
+2. **Automatic migrations** - Runs database migrations (creates users table, etc.)
+3. **Application start** - Starts Next.js server
+
+#### Managing Admins in Docker
+
+```bash
+# Create admin
+docker exec fdc-app node scripts/make-admin.js user@example.com
+
+# List all admins
+docker exec fdc-app node scripts/list-admins.js
+
+# Revoke admin rights
+docker exec fdc-app node scripts/revoke-admin.js user@example.com
+```
+
+#### Database Backup
+
+```bash
+# Backup database
+docker run --rm -v fdc-sqlite-data:/data -v "$PWD":/backup bash:5 \
+  bash -lc 'cp /data/meals.db /backup/meals.db.$(date +%F).bak'
+
+# Restore from backup
+docker run --rm -v fdc-sqlite-data:/data -v "$PWD":/backup bash:5 \
+  bash -lc 'cp /backup/meals.db.2024-12-30.bak /data/meals.db'
+```
+
+**Complete Docker documentation:**
+- [DOCKER.md](./DOCKER.md) - Full Docker deployment guide with nginx/SSL setup
+- [DOCKER_ADMIN_QUICK_REF.md](./DOCKER_ADMIN_QUICK_REF.md) - Quick reference for Docker admin commands
 
 ## 🤝 Contributing
 

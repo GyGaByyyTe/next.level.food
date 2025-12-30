@@ -7,6 +7,7 @@ import { updateMealHandler } from '@/lib/actions';
 import MealShareFormSubmitButton from '@/components/Meals/MealShareFormSubmitButton/MealShareFormSubmitButton';
 import cl from './page.module.css';
 import { Meal } from '@/types/meals';
+import { useAuth } from '@/hooks/useAuth';
 
 const initialState: FormState = {
   meal: null,
@@ -23,6 +24,7 @@ export default function EditMealPage({ params }: EditMealPageProps) {
   const [meal, setMeal] = useState<Meal | null>(null);
   const [loading, setLoading] = useState(true);
   const [authorized, setAuthorized] = useState(false);
+  const { userEmail, isAdmin, isLoading: authLoading } = useAuth();
 
   useEffect(() => {
     params.then(({ slug }) => {
@@ -31,20 +33,21 @@ export default function EditMealPage({ params }: EditMealPageProps) {
   }, [params]);
 
   useEffect(() => {
-    if (!slug) return;
+    if (!slug || authLoading) return;
 
     // Загружаем данные рецепта и проверяем авторизацию
-    Promise.all([
-      fetch(`/api/meals/${slug}`).then((res) => res.json()),
-      fetch('/api/auth/session').then((res) => res.json()),
-    ])
-      .then(([mealData, session]) => {
-        if (!mealData || !session?.user?.email) {
+    fetch(`/api/meals/${slug}`)
+      .then((res) => res.json())
+      .then((mealData) => {
+        if (!mealData || !userEmail) {
           window.location.href = '/meals';
           return;
         }
 
-        if (mealData.creator_email !== session.user.email) {
+        // Проверяем права: администратор может редактировать любой рецепт
+        const isCreator = mealData.creator_email === userEmail;
+
+        if (!isAdmin && !isCreator) {
           alert('Вы можете редактировать только свои рецепты');
           window.location.href = '/meals';
           return;
@@ -58,7 +61,7 @@ export default function EditMealPage({ params }: EditMealPageProps) {
         console.error('Error loading meal:', error);
         window.location.href = '/meals';
       });
-  }, [slug]);
+  }, [slug, userEmail, isAdmin, authLoading]);
 
   const [formState, formAction] = useActionState(
     updateMealHandler.bind(null, slug),

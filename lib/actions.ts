@@ -22,7 +22,8 @@ export const shareMealHandler = async (
     image: (formData.get('image') as File) || null,
     creator: (formData.get('name') as string) || '',
     // Используем email из сессии, если пользователь авторизован
-    creator_email: session?.user?.email || (formData.get('email') as string) || '',
+    creator_email:
+      session?.user?.email || (formData.get('email') as string) || '',
   };
 
   if (
@@ -119,20 +120,18 @@ export const updateMealHandler = async (
   redirect(`/meals/${slug}`);
 };
 
-export const deleteMealHandler = async (slug: string, creatorEmail: string) => {
+export const deleteMealHandler = async (
+  slug: string,
+) => {
   const session = await auth();
 
   if (!session?.user?.email) {
     throw new Error('You must be logged in to delete a meal.');
   }
 
-  if (session.user.email !== creatorEmail) {
-    throw new Error('You can only delete your own meals.');
-  }
-
   try {
     const { deleteMeal } = await import('@/lib/meals');
-    await deleteMeal(slug);
+    await deleteMeal(slug, session.user.email, session.user.isAdmin);
   } catch (error) {
     let errorMessage = 'Failed to delete meal.';
     if (error instanceof Error) {
@@ -145,4 +144,3 @@ export const deleteMealHandler = async (slug: string, creatorEmail: string) => {
 
   redirect('/meals');
 };
-

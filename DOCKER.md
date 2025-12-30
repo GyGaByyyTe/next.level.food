@@ -161,7 +161,7 @@ docker compose -f docker-compose.app.yml up -d
 
 ---
 
-## 6) Полезные команды и бэкап
+## 7) Полезные команды и бэкап
 
 ```bash
 # Список контейнеров
@@ -173,8 +173,33 @@ docker logs -f fdc-app
 # Рестарт приложения
 docker compose -f docker-compose.app.yml up -d
 
+# Выполнить команду внутри контейнера
+docker exec fdc-app <команда>
+
+# Интерактивный shell в контейнере
+docker exec -it fdc-app sh
+
+# === Управление администраторами ===
+
+# Создать администратора
+docker exec fdc-app node scripts/make-admin.js admin@example.com
+
+# Отозвать права
+docker exec fdc-app node scripts/revoke-admin.js user@example.com
+
+# Запустить миграции вручную
+docker exec fdc-app node scripts/migrate.js
+
+# Посмотреть администраторов
+docker exec fdc-app sqlite3 /data/meals.db "SELECT email, is_admin FROM users WHERE is_admin = 1;"
+
+# === Бэкап базы данных ===
+
 # Бэкап SQLite БД (в текущую папку)
 docker run --rm -v fdc-sqlite-data:/data -v "$PWD":/backup bash:5 bash -lc 'cp /data/meals.db /backup/meals.db.$(date +%F).bak'
+
+# Восстановление из бэкапа
+docker run --rm -v fdc-sqlite-data:/data -v "$PWD":/backup bash:5 bash -lc 'cp /backup/meals.db.2024-12-30.bak /data/meals.db'
 ```
 
 Готово: после выполнения шагов приложение доступно по адресу https://food.does.cool/.

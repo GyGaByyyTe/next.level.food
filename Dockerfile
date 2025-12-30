@@ -53,6 +53,10 @@ COPY --from=builder --chown=appuser:appuser /app/public ./public
 # initdb.js is used for first-run DB initialization (if present)
 COPY --from=builder /app/initdb.js ./initdb.js
 
+# Copy migrations and admin management scripts
+COPY --from=builder --chown=appuser:appuser /app/migrations ./migrations
+COPY --from=builder --chown=appuser:appuser /app/scripts ./scripts
+
 # Entrypoint that links /app/meals.db → /data/meals.db and runs initdb.js if needed
 COPY docker-entrypoint.sh /usr/local/bin/entrypoint.sh
 RUN chmod +x /usr/local/bin/entrypoint.sh
