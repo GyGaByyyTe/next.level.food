@@ -25,7 +25,7 @@ export default async function MainHeader() {
               <NavLink href="/meals">Browse Meals</NavLink>
             </li>
             <li>
-              <NavLink href="/community">Community Foodies Community</NavLink>
+              <NavLink href="/community">Foodies Community</NavLink>
             </li>
             <li className={cl.authItem}>
               {session?.user ? (

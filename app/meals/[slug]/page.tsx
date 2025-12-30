@@ -3,6 +3,8 @@ import Image from 'next/image';
 import cl from './page.module.css';
 import { getMeal } from '@/lib/meals';
 import { notFound } from 'next/navigation';
+import { auth } from '@/lib/auth';
+import MealActions from '@/components/Meals/MealActions';
 
 export default async function MealDetailsPage({
   params,
@@ -10,11 +12,13 @@ export default async function MealDetailsPage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const meal = await getMeal(slug);
+  const meal = getMeal(slug);
 
   if (!meal) {
     notFound();
   }
+
+  const session = await auth();
 
   meal.instructions = meal.instructions.replace(/\n/g, '<br />');
 
@@ -36,6 +40,11 @@ export default async function MealDetailsPage({
         <p
           className={cl.instructions}
           dangerouslySetInnerHTML={{ __html: meal.instructions }}
+        />
+        <MealActions
+          slug={meal.slug}
+          creatorEmail={meal.creator_email}
+          userEmail={session?.user?.email}
         />
       </main>
     </>

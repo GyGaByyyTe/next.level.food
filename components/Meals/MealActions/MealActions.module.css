@@ -1,0 +1,44 @@
+.actions {
+  display: flex;
+  gap: 1rem;
+  margin-top: 2rem;
+  justify-content: center;
+}
+
+.editButton,
+.deleteButton {
+  padding: 0.75rem 2rem;
+  border: none;
+  border-radius: 0.5rem;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.editButton {
+  background: linear-gradient(90deg, #f9572a, #ff8a05);
+  color: white;
+}
+
+.editButton:hover:not(:disabled) {
+  background: linear-gradient(90deg, #fd4715, #f9b241);
+  box-shadow: 0 0 12px rgba(248, 175, 59, 0.8);
+}
+
+.deleteButton {
+  background: #dc2626;
+  color: white;
+}
+
+.deleteButton:hover:not(:disabled) {
+  background: #b91c1c;
+  box-shadow: 0 0 12px rgba(220, 38, 38, 0.6);
+}
+
+.editButton:disabled,
+.deleteButton:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
