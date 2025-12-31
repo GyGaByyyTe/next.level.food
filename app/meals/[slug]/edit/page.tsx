@@ -5,6 +5,7 @@ import { FormState } from '@/types/meals';
 import ImagePicker from '@/components/ImagePicker';
 import { updateMealHandler } from '@/lib/actions';
 import MealShareFormSubmitButton from '@/components/Meals/MealShareFormSubmitButton/MealShareFormSubmitButton';
+import { useToast } from '@/hooks/useToast';
 import cl from './page.module.css';
 import { Meal } from '@/types/meals';
 import { useAuth } from '@/hooks/useAuth';
@@ -20,6 +21,7 @@ interface EditMealPageProps {
 }
 
 export default function EditMealPage({ params }: EditMealPageProps) {
+  const { error: showError } = useToast();
   const [slug, setSlug] = useState<string>('');
   const [meal, setMeal] = useState<Meal | null>(null);
   const [loading, setLoading] = useState(true);
@@ -57,8 +59,8 @@ export default function EditMealPage({ params }: EditMealPageProps) {
         setAuthorized(true);
         setLoading(false);
       })
-      .catch((error) => {
-        console.error('Error loading meal:', error);
+      .catch((err) => {
+        console.error('Error loading meal:', err);
         window.location.href = '/meals';
       });
   }, [slug, userEmail, isAdmin, authLoading]);
@@ -68,10 +70,17 @@ export default function EditMealPage({ params }: EditMealPageProps) {
     initialState,
   );
 
+  // Show error notifications when formState changes
+  useEffect(() => {
+    if (formState.error) {
+      showError(formState.message || 'An error occurred while updating the recipe');
+    }
+  }, [formState, showError]);
+
   if (loading || !authorized || !meal) {
     return (
       <div className={cl.loading}>
-        <p>Загрузка...</p>
+        <p>Loading...</p>
       </div>
     );
   }
@@ -80,15 +89,15 @@ export default function EditMealPage({ params }: EditMealPageProps) {
     <>
       <header className={cl.header}>
         <h1>
-          Редактировать <span className={cl.highlight}>рецепт</span>
+          Edit <span className={cl.highlight}>Recipe</span>
         </h1>
-        <p>Обновите информацию о вашем рецепте</p>
+        <p>Update your recipe information</p>
       </header>
       <main className={cl.main}>
         <form className={cl.form} action={formAction}>
           <div className={cl.row}>
             <p>
-              <label htmlFor="name">Ваше имя</label>
+              <label htmlFor="name">Your Name</label>
               <input
                 required
                 type="text"
@@ -99,7 +108,7 @@ export default function EditMealPage({ params }: EditMealPageProps) {
             </p>
           </div>
           <p>
-            <label htmlFor="title">Название</label>
+            <label htmlFor="title">Title</label>
             <input
               required
               type="text"
@@ -109,7 +118,7 @@ export default function EditMealPage({ params }: EditMealPageProps) {
             />
           </p>
           <p>
-            <label htmlFor="summary">Краткое описание</label>
+            <label htmlFor="summary">Short Summary</label>
             <input
               required
               type="text"
@@ -119,7 +128,7 @@ export default function EditMealPage({ params }: EditMealPageProps) {
             />
           </p>
           <p>
-            <label htmlFor="instructions">Инструкции</label>
+            <label htmlFor="instructions">Instructions</label>
             <textarea
               required
               id="instructions"
@@ -130,12 +139,12 @@ export default function EditMealPage({ params }: EditMealPageProps) {
           </p>
           <ImagePicker
             name="image"
-            label="Изображение (оставьте пустым, чтобы сохранить текущее)"
+            label="Image (leave empty to keep current)"
           />
           {formState?.error && <p className={cl.error}>{formState?.error}:</p>}
           {formState?.message && <p className={cl.error}>{formState?.message}</p>}
           <p className={cl.actions}>
-            <MealShareFormSubmitButton label="Сохранить изменения" />
+            <MealShareFormSubmitButton label="Save Changes" />
           </p>
         </form>
       </main>

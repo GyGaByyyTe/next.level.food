@@ -4,6 +4,7 @@ import { useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import { deleteMealHandler } from '@/lib/actions';
 import { useAuth } from '@/hooks/useAuth';
+import { useToast } from '@/hooks/useToast';
 import cl from './MealActions.module.css';
 
 interface MealActionsProps {
@@ -18,6 +19,7 @@ export default function MealActions({
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const { userEmail, isAdmin, isLoading } = useAuth();
+  const { success, error } = useToast();
 
   // Don't show anything while loading
   if (isLoading) {
@@ -36,29 +38,34 @@ export default function MealActions({
   };
 
   const handleDelete = async () => {
-    if (!confirm('Вы уверены, что хотите удалить этот рецепт?')) {
+    if (!confirm('Are you sure you want to delete this recipe?')) {
       return;
     }
 
     startTransition(async () => {
       try {
         await deleteMealHandler(slug);
-      } catch (error) {
-        // Игнорируем ошибку NEXT_REDIRECT - это не настоящая ошибка, а механизм редиректа Next.js
-        // Next.js использует digest для идентификации редиректов и NotFound ошибок
+        success('Recipe deleted successfully!');
+      } catch (err) {
+        // Ignore NEXT_REDIRECT error - it's not a real error, but Next.js redirect mechanism
+        // Next.js uses digest to identify redirects and NotFound errors
         if (
-          error &&
-          typeof error === 'object' &&
-          'digest' in error &&
-          typeof error.digest === 'string' &&
-          error.digest.startsWith('NEXT_REDIRECT')
+          err &&
+          typeof err === 'object' &&
+          'digest' in err &&
+          typeof err.digest === 'string' &&
+          err.digest.startsWith('NEXT_REDIRECT')
         ) {
-          // Это редирект Next.js, пробрасываем его дальше
-          throw error;
+          // This is a Next.js redirect, show notification before redirect
+          success('Recipe deleted successfully!');
+          // Re-throw it
+          throw err;
         }
-        console.log('error', error);
-        if (error instanceof Error) {
-          alert(error.message);
+        console.log('error', err);
+        if (err instanceof Error) {
+          error(err.message);
+        } else {
+          error('Failed to delete recipe');
         }
       }
     });
@@ -71,14 +78,14 @@ export default function MealActions({
         disabled={isPending}
         className={cl.editButton}
       >
-        Редактировать
+        Edit
       </button>
       <button
         onClick={handleDelete}
         disabled={isPending}
         className={cl.deleteButton}
       >
-        {isPending ? 'Удаление...' : 'Удалить'}
+        {isPending ? 'Deleting...' : 'Delete'}
       </button>
     </div>
   );

@@ -1,6 +1,7 @@
 'use client';
 
 import { useFormStatus } from 'react-dom';
+import cl from './MealShareFormSubmitButton.module.css';
 
 export interface MealShareFormSubmitButtonProps {
   label?: string;
@@ -14,7 +15,7 @@ export default function MealShareFormSubmitButton({
   const { pending } = useFormStatus();
 
   return (
-    <button disabled={pending} type="submit">
+    <button disabled={pending} type="submit" className={cl.submitButton}>
       {pending ? pendingLabel : label}
     </button>
   );

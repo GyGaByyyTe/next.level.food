@@ -5,6 +5,7 @@ import { FormState } from '@/types/meals';
 import ImagePicker from '@/components/ImagePicker';
 import { shareMealHandler } from '@/lib/actions';
 import MealShareFormSubmitButton from '@/components/Meals/MealShareFormSubmitButton';
+import { useToast } from '@/hooks/useToast';
 import cl from './page.module.css';
 
 const initialState: FormState = {
@@ -14,15 +15,17 @@ const initialState: FormState = {
 };
 
 export default function ShareMealPage() {
+  const { error } = useToast();
+  const [userEmail, setUserEmail] = useState('');
+  const [userName, setUserName] = useState('');
+
   const [formState, formAction] = useActionState(
     shareMealHandler,
     initialState,
   );
-  const [userEmail, setUserEmail] = useState('');
-  const [userName, setUserName] = useState('');
 
   useEffect(() => {
-    // Получаем данные пользователя из сессии
+    // Get user data from session
     fetch('/api/auth/session')
       .then((res) => res.json())
       .then((session) => {
@@ -31,10 +34,17 @@ export default function ShareMealPage() {
           setUserName(session.user.name || '');
         }
       })
-      .catch((error) => {
-        console.error('Error fetching session:', error);
+      .catch((err) => {
+        console.error('Error fetching session:', err);
       });
   }, []);
+
+  // Show error notifications when formState changes
+  useEffect(() => {
+    if (formState.error) {
+      error(formState.message || 'An error occurred while creating the recipe');
+    }
+  }, [formState, error]);
 
   return (
     <>

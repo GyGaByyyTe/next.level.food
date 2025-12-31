@@ -4,6 +4,7 @@ import cl from './page.module.css';
 import { getMeal } from '@/lib/meals';
 import { notFound } from 'next/navigation';
 import MealActions from '@/components/Meals/MealActions';
+import MealDetailsNotifications from '@/components/Meals/MealDetailsNotifications';
 
 export default async function MealDetailsPage({
   params,
@@ -21,6 +22,7 @@ export default async function MealDetailsPage({
 
   return (
     <>
+      <MealDetailsNotifications />
       <header className={cl.header}>
         <div className={cl.image}>
           <Image fill src={meal.image as string} alt={meal.title} />
@@ -47,5 +49,5 @@ export default async function MealDetailsPage({
   );
 }
 
-// Отключаем пререндеринг этой страницы на этапе сборки
+// Disable prerendering for this page at build time
 export const dynamic = 'force-dynamic';

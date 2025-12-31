@@ -1,12 +1,13 @@
 import { Suspense } from 'react';
 import Link from 'next/link';
 import MealsGrid from '@/components/Meals/MealsGrid';
+import MealsNotifications from '@/components/Meals/MealsNotifications';
 import { getMeals } from '@/lib/meals';
 import { Meal } from '@/types/meals';
 import cl from './page.module.css';
 import MealsLoadingPage from '@/app/meals/loading';
 
-// Отключаем пререндеринг на этапе сборки, чтобы не было обращений к MinIO на build
+// Disable prerendering at build time to avoid MinIO calls during build
 export const dynamic = 'force-dynamic';
 
 async function Meals() {
@@ -18,6 +19,7 @@ async function Meals() {
 export default function MealsPage() {
   return (
     <>
+      <MealsNotifications />
       <header className={cl.header}>
         <h1>
           Delicious meals, created <span className={cl.highlight}>by you</span>

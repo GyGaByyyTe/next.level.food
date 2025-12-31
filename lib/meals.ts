@@ -17,7 +17,16 @@ export function getMeal(slug: string) {
 }
 
 export async function saveMeal(meal: CreateMealDto) {
-  const slug = slugify(meal.title, { lower: true });
+  const baseSlug = slugify(meal.title, { lower: true });
+
+  // Check if a recipe with this slug already exists
+  let slug = baseSlug;
+  let counter = 1;
+  while (getMeal(slug)) {
+    slug = `${baseSlug}-${counter}`;
+    counter++;
+  }
+
   const sanitizedMeal = {
     ...meal,
     title: xss(meal.title),
@@ -31,6 +40,11 @@ export async function saveMeal(meal: CreateMealDto) {
   const fileName = `${slug}-${Date.now()}.${extension}`;
 
   const bufferedImage = await (meal.image as File).arrayBuffer();
+
+  // Check that the image is not empty
+  if (bufferedImage.byteLength === 0) {
+    throw new Error('The image is empty. Please select a valid image file.');
+  }
 
   if (process.env.NODE_ENV !== 'production') {
     const stream = fs.createWriteStream(`public/images/${fileName}`);
@@ -63,22 +77,30 @@ export async function saveMeal(meal: CreateMealDto) {
     sanitizedMeal.image = `${publicBase}/${BUCKET_NAME}/${fileName}`;
   }
 
-  db.prepare(
-    `
-    INSERT INTO meals 
-      (title, summary, instructions, creator, creator_email, image, slug)
-    VALUES 
-      (
-       @title, 
-       @summary, 
-       @instructions, 
-       @creator, 
-       @creator_email,
-       @image, 
-       @slug
-      )
-  `,
-  ).run(sanitizedMeal);
+  try {
+    db.prepare(
+      `
+      INSERT INTO meals 
+        (title, summary, instructions, creator, creator_email, image, slug)
+      VALUES 
+        (
+         @title, 
+         @summary, 
+         @instructions, 
+         @creator, 
+         @creator_email,
+         @image, 
+         @slug
+        )
+    `,
+    ).run(sanitizedMeal);
+  } catch (error) {
+    console.error('Database error:', error);
+    if (error instanceof Error && error.message.includes('UNIQUE constraint')) {
+      throw new Error('A recipe with this title already exists. Please choose a different title.');
+    }
+    throw new Error('Failed to save recipe to database.');
+  }
 }
 
 export async function updateMeal(slug: string, meal: Partial<CreateMealDto>) {

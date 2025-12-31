@@ -26,33 +26,85 @@ export const shareMealHandler = async (
       session?.user?.email || (formData.get('email') as string) || '',
   };
 
-  if (
-    isInvalidText(meal.instructions) ||
-    isInvalidText(meal.title) ||
-    isInvalidText(meal.summary) ||
-    isInvalidText(meal.creator) ||
-    isInvalidText(meal.creator_email) ||
-    !meal.creator_email.includes('@') ||
-    !meal.image ||
-    (meal.image as File).size === 0
-  ) {
+  // Логирование для отладки
+  console.log('Meal validation:', {
+    title: meal.title,
+    summary: meal.summary,
+    instructions: meal.instructions,
+    creator: meal.creator,
+    creator_email: meal.creator_email,
+    hasImage: !!meal.image,
+    imageSize: meal.image ? (meal.image as File).size : 0,
+    imageName: meal.image ? (meal.image as File).name : 'no file',
+  });
+
+  // Detailed validation with specific messages
+  if (isInvalidText(meal.title)) {
     return {
       meal,
-      error: 'Invalid meal information',
-      message: 'Please check your input and try again.',
+      error: 'Invalid title',
+      message: 'Please enter a recipe title',
+    };
+  }
+
+  if (isInvalidText(meal.summary)) {
+    return {
+      meal,
+      error: 'Invalid description',
+      message: 'Please enter a short recipe description',
+    };
+  }
+
+  if (isInvalidText(meal.instructions)) {
+    return {
+      meal,
+      error: 'Invalid instructions',
+      message: 'Please enter cooking instructions',
+    };
+  }
+
+  if (isInvalidText(meal.creator)) {
+    return {
+      meal,
+      error: 'Invalid name',
+      message: 'Please enter your name',
+    };
+  }
+
+  if (isInvalidText(meal.creator_email) || !meal.creator_email.includes('@')) {
+    return {
+      meal,
+      error: 'Invalid email',
+      message: 'Please enter a valid email address',
+    };
+  }
+
+  if (!meal.image) {
+    return {
+      meal,
+      error: 'No image selected',
+      message: 'Please select a recipe image',
+    };
+  }
+
+  if ((meal.image as File).size === 0) {
+    return {
+      meal,
+      error: 'Empty image',
+      message: 'The selected image is empty. Please select another image',
     };
   }
 
   try {
     await saveMeal(meal);
   } catch (error) {
-    let errorMessage = 'Failed to save meal.';
+    let errorMessage = 'Failed to save recipe.';
     if (error instanceof Error) {
       errorMessage = error.message;
     }
     return {
       meal,
-      error: 'Save Operation Failed',
+      error: 'Save failed',
       message: errorMessage,
     };
   }
@@ -60,7 +112,7 @@ export const shareMealHandler = async (
   // Add this line to revalidate the meals page
   revalidatePath('/meals');
 
-  redirect('/meals');
+  redirect('/meals?success=created');
 };
 
 export const updateMealHandler = async (
@@ -117,7 +169,7 @@ export const updateMealHandler = async (
   revalidatePath('/meals');
   revalidatePath(`/meals/${slug}`);
 
-  redirect(`/meals/${slug}`);
+  redirect(`/meals/${slug}?success=updated`);
 };
 
 export const deleteMealHandler = async (
