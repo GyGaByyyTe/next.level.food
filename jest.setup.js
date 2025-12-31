@@ -15,3 +15,17 @@ global.fetch = jest.fn(() =>
   }),
 );
 
+// Mock NextAuth
+jest.mock('next-auth', () => ({
+  __esModule: true,
+  default: jest.fn(() => ({
+    handlers: {
+      GET: jest.fn(),
+      POST: jest.fn(),
+    },
+    signIn: jest.fn(),
+    signOut: jest.fn(),
+    auth: jest.fn(),
+  })),
+}));
+

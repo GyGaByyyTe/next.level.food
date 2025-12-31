@@ -1,6 +1,13 @@
 import { render, screen } from '@testing-library/react';
 import { SignIn, SignOut } from '@/components/auth-components';
 
+// Mock the lib/auth module
+jest.mock('../lib/auth', () => ({
+  auth: jest.fn(() => Promise.resolve(null)),
+  signIn: jest.fn(),
+  signOut: jest.fn(),
+}));
+
 describe('Auth Components', () => {
   describe('SignIn', () => {
     it('renders sign in button', () => {

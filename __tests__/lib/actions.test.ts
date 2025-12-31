@@ -16,8 +16,18 @@ jest.mock('next/navigation', () => ({
   redirect: jest.fn(),
 }));
 
+jest.mock('../../lib/auth', () => ({
+  auth: jest.fn(() => Promise.resolve(null)),
+}));
+
 describe('actions', () => {
   describe('shareMealHandler', () => {
+    const initialState = {
+      meal: null,
+      error: '',
+      message: '',
+    };
+
     beforeEach(() => {
       // Clear all mocks before each test
       jest.clearAllMocks();
@@ -37,8 +47,8 @@ describe('actions', () => {
       formData.append('name', 'Test Creator');
       formData.append('email', 'test@example.com');
 
-      // Call the handler
-      await shareMealHandler(formData);
+      // Call the handler with initialState
+      await shareMealHandler(initialState, formData);
 
       // Check that saveMeal was called with the correct data
       expect(saveMeal).toHaveBeenCalledWith({
@@ -54,7 +64,7 @@ describe('actions', () => {
       expect(revalidatePath).toHaveBeenCalledWith('/meals');
 
       // Check that redirect was called with the correct path
-      expect(redirect).toHaveBeenCalledWith('/meals');
+      expect(redirect).toHaveBeenCalledWith('/meals?success=created');
     });
 
     it('should throw an error for invalid input', async () => {
@@ -70,8 +80,11 @@ describe('actions', () => {
       const emptyFile = new File([''], 'empty.jpg', { type: 'image/jpeg' });
       formData.append('image', emptyFile);
 
-      // Expect the handler to throw an error
-      await expect(shareMealHandler(formData)).rejects.toThrow('Invalid meal information');
+      // Call the handler - it should return an error state, not throw
+      const result = await shareMealHandler(initialState, formData);
+
+      // Check that result has error
+      expect(result.error).toBeTruthy();
 
       // Check that saveMeal was not called
       expect(saveMeal).not.toHaveBeenCalled();
@@ -94,8 +107,11 @@ describe('actions', () => {
 
       // No image appended
 
-      // Expect the handler to throw an error
-      await expect(shareMealHandler(formData)).rejects.toThrow('Invalid meal information');
+      // Call the handler - it should return an error state, not throw
+      const result = await shareMealHandler(initialState, formData);
+
+      // Check that result has error
+      expect(result.error).toBeTruthy();
 
       // Check that saveMeal was not called
       expect(saveMeal).not.toHaveBeenCalled();
@@ -114,8 +130,11 @@ describe('actions', () => {
       formData.append('name', 'Valid name');
       formData.append('email', 'invalidemail'); // Missing @
 
-      // Expect the handler to throw an error
-      await expect(shareMealHandler(formData)).rejects.toThrow('Invalid meal information');
+      // Call the handler - it should return an error state, not throw
+      const result = await shareMealHandler(initialState, formData);
+
+      // Check that result has error
+      expect(result.error).toBeTruthy();
 
       // Check that saveMeal was not called
       expect(saveMeal).not.toHaveBeenCalled();

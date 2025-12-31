@@ -3,6 +3,11 @@ import { render, screen } from '@testing-library/react';
 import MainHeader from '../components/MainHeader/MainHeader';
 import '@testing-library/jest-dom';
 
+// Mock the lib/auth module
+jest.mock('../lib/auth', () => ({
+  auth: jest.fn(() => Promise.resolve(null)),
+}));
+
 // Mock the next/image component
 jest.mock('next/image', () => ({
   __esModule: true,
@@ -27,31 +32,41 @@ jest.mock('../components/NavLink', () => ({
   ),
 }));
 
+// Mock auth components
+jest.mock('../components/auth-components', () => ({
+  SignIn: () => <button data-testid="sign-in">Sign In</button>,
+  SignOut: () => <button data-testid="sign-out">Sign Out</button>,
+}));
+
 describe('MainHeader Component', () => {
-  it('renders the logo with correct link', () => {
-    render(<MainHeader />);
+  it('renders the logo with correct link', async () => {
+    const component = await MainHeader();
+    render(component);
 
     const logoLink = screen.getByText('Next.Level Food');
     expect(logoLink).toBeInTheDocument();
     expect(logoLink.closest('a')).toHaveAttribute('href', '/');
   });
 
-  it('renders the logo image', () => {
-    render(<MainHeader />);
+  it('renders the logo image', async () => {
+    const component = await MainHeader();
+    render(component);
 
     const logoImage = screen.getByTestId('mock-image');
     expect(logoImage).toBeInTheDocument();
   });
 
-  it('renders the MainHeaderBackground component', () => {
-    render(<MainHeader />);
+  it('renders the MainHeaderBackground component', async () => {
+    const component = await MainHeader();
+    render(component);
 
     const background = screen.getByTestId('mock-header-background');
     expect(background).toBeInTheDocument();
   });
 
-  it('renders navigation links with correct hrefs', () => {
-    render(<MainHeader />);
+  it('renders navigation links with correct hrefs', async () => {
+    const component = await MainHeader();
+    render(component);
 
     const navLinks = screen.getAllByTestId('mock-nav-link');
     expect(navLinks).toHaveLength(2);
@@ -62,7 +77,7 @@ describe('MainHeader Component', () => {
     expect(mealsLink).toHaveAttribute('href', '/meals');
 
     // Check the "Community" link
-    const communityLink = navLinks.find(link => link.textContent === 'Community Foodies Community');
+    const communityLink = navLinks.find(link => link.textContent === 'Foodies Community');
     expect(communityLink).toBeInTheDocument();
     expect(communityLink).toHaveAttribute('href', '/community');
   });

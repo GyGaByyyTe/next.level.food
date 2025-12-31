@@ -1,5 +1,6 @@
 import { render, screen } from '@testing-library/react';
 import MealsSharePage from '../app/meals/share/page';
+import { ToastProvider } from '@/lib/contexts/ToastContext';
 import '@testing-library/jest-dom';
 
 // Mock the next/image component
@@ -16,15 +17,58 @@ jest.mock('../lib/actions', () => ({
 }));
 
 // Mock the FormData class
-global.FormData = class {
-  get() {
-    return '';
+global.FormData = class FormData {
+  private data: Map<string, any> = new Map();
+
+  append(name: string, value: any) {
+    this.data.set(name, value);
   }
+
+  get(name: string) {
+    return this.data.get(name) || null;
+  }
+
+  has(name: string) {
+    return this.data.has(name);
+  }
+
+  delete(name: string) {
+    this.data.delete(name);
+  }
+
+  set(name: string, value: any) {
+    this.data.set(name, value);
+  }
+
+  forEach(callback: (value: any, key: string) => void) {
+    this.data.forEach(callback);
+  }
+
+  entries() {
+    return this.data.entries();
+  }
+
+  keys() {
+    return this.data.keys();
+  }
+
+  values() {
+    return this.data.values();
+  }
+
+  [Symbol.iterator]() {
+    return this.data.entries();
+  }
+} as any;
+
+// Helper function to render with ToastProvider
+const renderWithToast = (component: React.ReactElement) => {
+  return render(<ToastProvider>{component}</ToastProvider>);
 };
 
 describe('MealsSharePage', () => {
   it('renders the heading with correct text', () => {
-    render(<MealsSharePage />);
+    renderWithToast(<MealsSharePage />);
 
     // Check for the main heading
     const heading = screen.getByRole('heading', { level: 1 });
@@ -33,7 +77,7 @@ describe('MealsSharePage', () => {
   });
 
   it('renders the form with all required fields', () => {
-    render(<MealsSharePage />);
+    renderWithToast(<MealsSharePage />);
 
     // Check for form fields
     expect(screen.getByLabelText('Your name')).toBeInTheDocument();
@@ -49,7 +93,7 @@ describe('MealsSharePage', () => {
   });
 
   it('renders the ImagePicker component', () => {
-    render(<MealsSharePage />);
+    renderWithToast(<MealsSharePage />);
 
     // Check for the ImagePicker component
     expect(screen.getByTestId('file-input')).toBeInTheDocument();
