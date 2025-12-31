@@ -53,6 +53,15 @@ export function useAuth() {
 
     try {
       const res = await fetch('/api/auth/session');
+
+      if (!res.ok) {
+        console.error('Failed to fetch session:', res.status);
+        sessionCache = null;
+        setSession(null);
+        setIsLoading(false);
+        return;
+      }
+
       const data = await res.json();
 
       // Update cache

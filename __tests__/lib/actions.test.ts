@@ -1,11 +1,12 @@
-import { shareMealHandler } from '../../lib/actions';
-import { saveMeal } from '../../lib/meals';
+import { shareMealHandler, updateMealHandler, deleteMealHandler } from '../../lib/actions';
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 
 // Mock dependencies
 jest.mock('../../lib/meals', () => ({
   saveMeal: jest.fn(),
+  updateMeal: jest.fn(),
+  deleteMeal: jest.fn(),
 }));
 
 jest.mock('next/cache', () => ({
@@ -19,6 +20,9 @@ jest.mock('next/navigation', () => ({
 jest.mock('../../lib/auth', () => ({
   auth: jest.fn(() => Promise.resolve(null)),
 }));
+
+// Get mocked functions
+const { saveMeal, updateMeal, deleteMeal } = require('../../lib/meals');
 
 describe('actions', () => {
   describe('shareMealHandler', () => {
@@ -140,4 +144,158 @@ describe('actions', () => {
       expect(saveMeal).not.toHaveBeenCalled();
     });
   });
+
+  describe('updateMealHandler', () => {
+    const initialState = {
+      meal: null,
+      error: '',
+      message: '',
+    };
+
+    beforeEach(() => {
+      jest.clearAllMocks();
+    });
+
+    it('should return error when user is not authenticated', async () => {
+      const { auth } = require('../../lib/auth');
+      (auth as jest.Mock).mockResolvedValue(null);
+
+      const formData = new FormData();
+      const result = await updateMealHandler('test-slug', initialState, formData);
+
+      expect(result.error).toBe('Unauthorized');
+      expect(result.message).toBe('You must be logged in to update a meal.');
+      expect(updateMeal).not.toHaveBeenCalled();
+    });
+
+    it('should return error for invalid meal data', async () => {
+      const { auth } = require('../../lib/auth');
+      (auth as jest.Mock).mockResolvedValue({
+        user: { email: 'test@example.com' },
+      });
+
+      const formData = new FormData();
+      formData.append('title', '   '); // Invalid - empty
+      formData.append('summary', 'Valid summary');
+      formData.append('instructions', 'Valid instructions');
+      formData.append('name', 'Test User');
+
+      const result = await updateMealHandler('test-slug', initialState, formData);
+
+      expect(result.error).toBe('Invalid meal information');
+      expect(updateMeal).not.toHaveBeenCalled();
+    });
+
+    it('should successfully update meal', async () => {
+      const { auth } = require('../../lib/auth');
+      (auth as jest.Mock).mockResolvedValue({
+        user: { email: 'test@example.com' },
+      });
+
+      (updateMeal as jest.Mock).mockResolvedValue(undefined);
+      const mockRedirect = redirect as unknown as jest.Mock;
+      mockRedirect.mockImplementation(() => {
+        throw { digest: 'NEXT_REDIRECT;replace;/meals/test-slug?success=updated' };
+      });
+
+      const formData = new FormData();
+      formData.append('title', 'Updated Title');
+      formData.append('summary', 'Updated summary');
+      formData.append('instructions', 'Updated instructions');
+      formData.append('name', 'Test User');
+
+      await expect(
+        updateMealHandler('test-slug', initialState, formData)
+      ).rejects.toHaveProperty('digest');
+
+      expect(updateMeal).toHaveBeenCalledWith('test-slug', expect.any(Object));
+      expect(revalidatePath).toHaveBeenCalledWith('/meals');
+      expect(revalidatePath).toHaveBeenCalledWith('/meals/test-slug');
+    });
+
+    it('should handle update errors', async () => {
+      const { auth } = require('../../lib/auth');
+      (auth as jest.Mock).mockResolvedValue({
+        user: { email: 'test@example.com' },
+      });
+
+      (updateMeal as jest.Mock).mockRejectedValue(new Error('Update failed'));
+
+      const formData = new FormData();
+      formData.append('title', 'Updated Title');
+      formData.append('summary', 'Updated summary');
+      formData.append('instructions', 'Updated instructions');
+      formData.append('name', 'Test User');
+
+      const result = await updateMealHandler('test-slug', initialState, formData);
+
+      expect(result.error).toBe('Update Operation Failed');
+      expect(result.message).toBe('Update failed');
+    });
+  });
+
+  describe('deleteMealHandler', () => {
+    beforeEach(() => {
+      jest.clearAllMocks();
+    });
+
+    it('should throw error when user is not authenticated', async () => {
+      const { auth } = require('../../lib/auth');
+      (auth as jest.Mock).mockResolvedValue(null);
+
+      await expect(deleteMealHandler('test-slug')).rejects.toThrow(
+        'You must be logged in to delete a meal.'
+      );
+
+      expect(deleteMeal).not.toHaveBeenCalled();
+    });
+
+    it('should successfully delete meal', async () => {
+      const { auth } = require('../../lib/auth');
+      (auth as jest.Mock).mockResolvedValue({
+        user: { email: 'test@example.com', isAdmin: false },
+      });
+
+      (deleteMeal as jest.Mock).mockResolvedValue(undefined);
+      const mockRedirect = redirect as unknown as jest.Mock;
+      mockRedirect.mockImplementation(() => {
+        throw { digest: 'NEXT_REDIRECT;replace;/meals' };
+      });
+
+      await expect(deleteMealHandler('test-slug')).rejects.toHaveProperty('digest');
+
+      expect(deleteMeal).toHaveBeenCalledWith('test-slug', 'test@example.com', false);
+      expect(revalidatePath).toHaveBeenCalledWith('/meals');
+    });
+
+    it('should handle delete errors', async () => {
+      const { auth } = require('../../lib/auth');
+      (auth as jest.Mock).mockResolvedValue({
+        user: { email: 'test@example.com', isAdmin: false },
+      });
+
+      (deleteMeal as jest.Mock).mockRejectedValue(new Error('Delete failed'));
+
+      await expect(deleteMealHandler('test-slug')).rejects.toThrow('Delete failed');
+    });
+
+    it('should delete as admin', async () => {
+      const { auth } = require('../../lib/auth');
+      (auth as jest.Mock).mockResolvedValue({
+        user: { email: 'admin@example.com', isAdmin: true },
+      });
+
+      (deleteMeal as jest.Mock).mockResolvedValue(undefined);
+      const mockRedirect = redirect as unknown as jest.Mock;
+      mockRedirect.mockImplementation(() => {
+        throw { digest: 'NEXT_REDIRECT;replace;/meals' };
+      });
+
+      await expect(deleteMealHandler('test-slug')).rejects.toHaveProperty('digest');
+
+      expect(deleteMeal).toHaveBeenCalledWith('test-slug', 'admin@example.com', true);
+    });
+  });
 });
+
+
