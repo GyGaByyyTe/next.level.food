@@ -1,5 +1,5 @@
 import NextAuth from 'next-auth';
-import Google from 'next-auth/providers/google';
+import { authConfig } from '@/lib/auth.config';
 import sql from 'better-sqlite3';
 
 const db = sql('meals.db');
@@ -14,22 +14,9 @@ interface DbUser {
 }
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
-  providers: [
-    Google({
-      clientId: process.env.GOOGLE_CLIENT_ID,
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-    }),
-  ],
+  ...authConfig,
   callbacks: {
-    async session({ session, token }) {
-      if (session.user && token.sub) {
-        session.user.id = token.sub;
-        // Add admin status to session
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        (session.user as any).isAdmin = token.isAdmin as boolean || false;
-      }
-      return session;
-    },
+    ...authConfig.callbacks,
     async jwt({ token, user, account }) {
       if (user && account) {
         token.id = user.id;
@@ -69,8 +56,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       return token;
     },
   },
-  pages: {
-    signIn: '/auth/signin',
-  },
 });
+
+
 

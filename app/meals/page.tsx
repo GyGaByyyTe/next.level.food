@@ -15,7 +15,7 @@ async function Meals() {
   return <MealsGrid meals={meals} />;
 }
 
-export default async function MealsPage() {
+export default function MealsPage() {
   return (
     <>
       <header className={cl.header}>
@@ -30,7 +30,7 @@ export default async function MealsPage() {
         </p>
       </header>
       <main className={cl.main}>
-        <Suspense fallback={<MealsLoadingPage />}>
+        <Suspense key="meals-list" fallback={<MealsLoadingPage />}>
           <Meals />
         </Suspense>
       </main>

@@ -44,6 +44,19 @@ export default function MealActions({
       try {
         await deleteMealHandler(slug);
       } catch (error) {
+        // Игнорируем ошибку NEXT_REDIRECT - это не настоящая ошибка, а механизм редиректа Next.js
+        // Next.js использует digest для идентификации редиректов и NotFound ошибок
+        if (
+          error &&
+          typeof error === 'object' &&
+          'digest' in error &&
+          typeof error.digest === 'string' &&
+          error.digest.startsWith('NEXT_REDIRECT')
+        ) {
+          // Это редирект Next.js, пробрасываем его дальше
+          throw error;
+        }
+        console.log('error', error);
         if (error instanceof Error) {
           alert(error.message);
         }
