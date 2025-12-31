@@ -6,25 +6,33 @@ FROM node:22-bookworm-slim AS builder
 # Do NOT set NODE_ENV=production in builder, we need devDeps (TypeScript) for build
 WORKDIR /app
 
+# Install pnpm globally
+RUN npm install -g pnpm@latest
+
 # System deps for native modules (better-sqlite3) and building
 RUN apt-get update \
   && apt-get install -y --no-install-recommends \
      python3 make g++ pkg-config libsqlite3-dev \
   && rm -rf /var/lib/apt/lists/*
 
-COPY package*.json ./
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+COPY .npmrc.docker ./.npmrc
 
 # Install all dependencies (incl. dev) for build-time (TypeScript, etc.)
-RUN npm ci
+RUN pnpm install --frozen-lockfile
+
+# Explicitly rebuild better-sqlite3 to ensure native bindings are compiled
+RUN cd node_modules/.pnpm/better-sqlite3@12.5.0/node_modules/better-sqlite3 && \
+    npm run build-release
 
 # Copy the rest of the app sources
 COPY . .
 
 # Build Next.js app
-RUN npm run build
+RUN pnpm run build
 
 # Prune dev dependencies to keep only production for the runtime layer
-RUN npm prune --omit=dev
+RUN pnpm prune --prod
 
 
 # 2) Runtime image
@@ -32,6 +40,9 @@ FROM node:22-bookworm-slim AS runner
 
 ENV NODE_ENV=production
 WORKDIR /app
+
+# Install pnpm globally in runner image
+RUN npm install -g pnpm@latest
 
 # Runtime libs for better-sqlite3
 RUN apt-get update \
@@ -45,7 +56,7 @@ RUN useradd -m appuser \
   && chown -R appuser:appuser /data /app
 
 # Copy only what is needed to run
-COPY --from=builder --chown=appuser:appuser /app/package*.json ./
+COPY --from=builder --chown=appuser:appuser /app/package.json /app/pnpm-lock.yaml /app/pnpm-workspace.yaml ./
 COPY --from=builder --chown=appuser:appuser /app/node_modules ./node_modules
 COPY --from=builder --chown=appuser:appuser /app/.next ./.next
 COPY --from=builder --chown=appuser:appuser /app/public ./public
@@ -68,4 +79,4 @@ ENV PORT=3010
 EXPOSE 3010
 
 ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
-CMD ["npm", "run", "start"]
+CMD ["pnpm", "run", "start"]

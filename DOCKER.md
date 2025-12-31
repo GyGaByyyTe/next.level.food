@@ -2,6 +2,10 @@
 
 Итог: один образ приложения `gygabyyyte/food-does-cool:latest` (Next.js + SQLite). База — SQLite в отдельном томе контейнера; MinIO остаётся системным сервисом (вне Docker). Прокси — nginx как в `deployment/files/nginx/food.does.cool.conf`.
 
+**Важно:** 
+- Проект использует `pnpm` вместо `npm`. Убедитесь, что файлы `pnpm-lock.yaml`, `pnpm-workspace.yaml` и `.npmrc.docker` присутствуют перед сборкой.
+- Для корректной работы `better-sqlite3` в Docker используется явная пересборка нативного модуля после установки зависимостей.
+
 ---
 
 ## 1) Сборка и публикация образа (локально, Windows PowerShell)
