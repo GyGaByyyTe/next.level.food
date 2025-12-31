@@ -29,6 +29,11 @@
   max-width: 50rem;
 }
 
+.form > p,
+.form > div {
+  margin-bottom: 1rem;
+}
+
 .form label {
   display: block;
   margin-bottom: 0.5rem;
@@ -84,3 +89,48 @@
   margin: 1rem 0;
 }
 
+.markdownHint {
+  font-size: 0.85rem;
+  color: #b3aea5;
+  margin-top: 0.25rem;
+  font-style: italic;
+}
+
+.markdownHint code {
+  background-color: #2d2d2d;
+  padding: 0.1rem 0.3rem;
+  border-radius: 2px;
+  font-family: 'Courier New', monospace;
+  color: #ff9b05;
+}
+
+.markdownExamples {
+  background-color: #1c2027;
+  border: 1px solid #454952;
+  border-radius: 4px;
+  padding: 1rem;
+  margin-top: 0.5rem;
+  font-size: 0.9rem;
+}
+
+.markdownExamples h4 {
+  color: #ff9b05;
+  margin: 0 0 0.5rem 0;
+  font-size: 0.95rem;
+}
+
+.markdownExamples ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.markdownExamples li {
+  margin: 0.3rem 0;
+  font-family: 'Courier New', monospace;
+  color: #ddd6cb;
+}
+
+.markdownExamples li code {
+  color: #7dd3fc;
+}

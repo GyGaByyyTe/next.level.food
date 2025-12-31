@@ -21,6 +21,10 @@
     "next-auth": "5.0.0-beta.30",
     "react": "19.0.1",
     "react-dom": "19.0.1",
+    "react-markdown": "^10.1.0",
+    "rehype-sanitize": "^6.0.0",
+    "remark-emoji": "^5.0.2",
+    "remark-gfm": "^4.0.1",
     "slugify": "^1.6.6",
     "xss": "^1.0.15"
   },

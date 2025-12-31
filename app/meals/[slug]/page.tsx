@@ -5,6 +5,7 @@ import { getMeal } from '@/lib/meals';
 import { notFound } from 'next/navigation';
 import MealActions from '@/components/Meals/MealActions';
 import MealDetailsNotifications from '@/components/Meals/MealDetailsNotifications';
+import MarkdownRenderer from '@/components/Meals/MarkdownRenderer';
 
 export default async function MealDetailsPage({
   params,
@@ -17,8 +18,6 @@ export default async function MealDetailsPage({
   if (!meal) {
     notFound();
   }
-
-  meal.instructions = meal.instructions.replace(/\n/g, '<br />');
 
   return (
     <>
@@ -36,10 +35,7 @@ export default async function MealDetailsPage({
         </div>
       </header>
       <main>
-        <p
-          className={cl.instructions}
-          dangerouslySetInnerHTML={{ __html: meal.instructions }}
-        />
+        <MarkdownRenderer content={meal.instructions} className={cl.instructions} />
         <MealActions
           slug={meal.slug}
           creatorEmail={meal.creator_email}

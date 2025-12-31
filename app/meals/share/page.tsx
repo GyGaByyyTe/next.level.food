@@ -101,7 +101,7 @@ export default function ShareMealPage() {
               defaultValue={formState.meal?.summary}
             />
           </p>
-          <p>
+          <div>
             <label htmlFor="instructions">Instructions</label>
             <textarea
               required
@@ -110,7 +110,22 @@ export default function ShareMealPage() {
               rows={10}
               defaultValue={formState.meal?.instructions}
             />
-          </p>
+            <div className={cl.markdownHint}>
+              💡 Markdown formatting supported
+            </div>
+            <div className={cl.markdownExamples}>
+              <h4>Examples:</h4>
+              <ul>
+                <li><code># Heading</code> — level 1 heading</li>
+                <li><code>## Subheading</code> — level 2 heading</li>
+                <li><code>**bold text**</code> — bold formatting</li>
+                <li><code>*italic*</code> — italic formatting</li>
+                <li><code>1. First step</code> — numbered list</li>
+                <li><code>- List item</code> — bulleted list</li>
+                <li><code>:smile: :heart: :one:</code> — emojis (e.g., :one: :two:)</li>
+              </ul>
+            </div>
+          </div>
           <ImagePicker name="image" label="Your image" />
           {formState?.error && <p>{formState?.error}:</p>}
           {formState?.message && <p>{formState?.message}</p>}
